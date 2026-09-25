@@ -1,46 +1,43 @@
-const remedies={
-
-"Late Blight":"Copper Fungicide",
-"Healthy":"No treatment needed"
-
-};
-
 async function predict(){
 
-const file=document.getElementById("image").files[0];
+const file=document.getElementById("imageInput").files[0];
 
 if(!file){
-
-alert("Upload a leaf image.");
+alert("Please upload a leaf image.");
 return;
-
 }
 
-const form=new FormData();
+document.getElementById("loading").classList.remove("hidden");
+document.getElementById("result").classList.add("hidden");
 
-form.append("file",file);
+const formData=new FormData();
+formData.append("file",file);
 
-const res=await fetch("/api/predict",{
+try{
 
+const response=await fetch("/api/predict",{
 method:"POST",
-body:form
-
+body:formData
 });
 
-const data=await res.json();
+const data=await response.json();
 
-document.getElementById("result").innerHTML=`
+document.getElementById("crop").innerText=data.crop;
+document.getElementById("disease").innerText=data.disease;
+document.getElementById("confidence").innerText=data.confidence;
+document.getElementById("severity").innerText=data.severity;
+document.getElementById("treatment").innerText=data.treatment;
+document.getElementById("prevention").innerText=data.prevention;
 
-<h2>${data.crop}</h2>
+document.getElementById("loading").classList.add("hidden");
+document.getElementById("result").classList.remove("hidden");
 
-<h3>${data.disease}</h3>
+}
+catch(err){
 
-<p><b>Confidence:</b> ${data.confidence}</p>
+document.getElementById("loading").classList.add("hidden");
+alert("Server Error");
 
-<p><b>Severity:</b> High</p>
-
-<p><b>Recommended:</b> ${data.treatment}</p>
-
-`;
+}
 
 }
